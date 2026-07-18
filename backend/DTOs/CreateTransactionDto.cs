@@ -14,6 +14,7 @@ public class CreateTransactionDto
     public decimal Amount { get; set; }
 
     [Required]
+    [EnumDataType(typeof(TransactionType))]
     public TransactionType Type { get; set; }
 
     [Required]
