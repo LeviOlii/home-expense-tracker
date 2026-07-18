@@ -1,4 +1,10 @@
+using HomeExpenseTracker.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=homeexpensetracker.db"));
+
 
 // Add services to the container.
 
