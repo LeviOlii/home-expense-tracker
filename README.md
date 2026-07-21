@@ -1,104 +1,102 @@
 # Home Expense Tracker
 
-Sistema simples de controle de gastos residenciais: cadastro de pessoas, cadastro de transações (receitas/despesas) e consulta de totais (por pessoa e geral).
+Aplicação desenvolvida para um desafio técnico, com o objetivo de controlar gastos residenciais de forma simples, organizada e visualmente clara.
 
-Desenvolvido como desafio técnico, com foco em código limpo e legível e separação clara de responsabilidades, sem arquitetura desnecessária pro tamanho do projeto.
+A solução foi construída com backend em .NET e frontend em React + TypeScript, com persistência local em SQLite, atendendo aos requisitos do desafio e ainda entregando uma experiência mais completa para o usuário.
+
+## O que foi implementado
+
+### Funcionalidades principais
+
+- Cadastro de pessoas com criação, listagem e deleção.
+- Cadastro de transações com criação e listagem paginada.
+- Consulta de totais por pessoa e total geral.
+- Regras de negócio aplicadas no backend:
+  - uma pessoa só pode ter transações se existir no cadastro;
+  - pessoas menores de 18 anos só podem cadastrar despesas;
+  - ao deletar uma pessoa, todas as suas transações são removidas em cascata.
+
+### Diferenciais do projeto
+
+Além do escopo mínimo do desafio, a aplicação ganhou:
+
+- interface moderna e responsiva para o frontend;
+- abas separadas para Pessoas, Transações e Totais;
+- filtros e paginação na listagem de transações;
+- validações no formulário com mensagens claras;
+- tratamento global de erros na API;
+- documentação interativa com Swagger/OpenAPI.
 
 ## Stack
 
 | Camada | Tecnologia |
 |---|---|
-| Backend | .NET 10 / C#, ASP.NET Core Web API |
+| Backend | .NET 10 / C# / ASP.NET Core Web API |
 | ORM | Entity Framework Core |
-| Banco de dados | SQLite (arquivo local, persiste entre execuções) |
-| Frontend | React + TypeScript |
+| Banco de dados | SQLite |
+| Frontend | React + TypeScript + Vite |
+| Estilo visual | Tailwind CSS + componentes com estrutura shadcn-style |
 | Documentação da API | Swagger / OpenAPI |
 
 ## Arquitetura
 
-O backend segue uma estrutura em camadas simples — sem camada de Repository, já que o `DbContext` do EF Core já cumpre esse papel num projeto desse tamanho:
+O backend segue uma estrutura simples e organizada em camadas:
 
-```
-Requisição HTTP
-     │
-     ▼
-Controller   → recebe a requisição, delega pro service
-     │
-     ▼
-Service      → regra de negócio mora aqui (validações, cálculos)
-     │
-     ▼
-DbContext    → EF Core, conversa com o banco
-     │
-     ▼
-SQLite (home-expense-tracker.db)
+```text
+Controller -> recebe a requisição e delega para o service
+Service -> concentra a regra de negócio e os cálculos
+DbContext -> acessa o banco via Entity Framework Core
+SQLite -> persiste os dados localmente
 ```
 
-**DTOs** são usados na borda da API em vez de expor as entidades do EF Core diretamente — isso deixa o contrato da API explícito e evita vazar detalhes do banco (como navigation properties) pro cliente.
+Os DTOs são usados na borda da API para manter o contrato explícito e evitar expor detalhes internos do modelo EF diretamente ao cliente.
 
 ## Estrutura do projeto
 
-```
+```text
 home-expense-tracker/
 ├── backend/
-│   ├── Controllers/
-│   ├── Models/            # Entidades do EF Core (Person, Transaction, TransactionType)
-│   ├── DTOs/               # Contratos de entrada/saída da API
-│   ├── Services/           # Regras de negócio
-│   ├── Data/                # AppDbContext
-│   ├── HomeExpenseTracker.csproj
+│   ├── Controllers/      # Endpoints da API
+│   ├── DTOs/             # Contratos de entrada/saída
+│   ├── Services/         # Regras de negócio
+│   ├── Data/             # AppDbContext
+│   ├── Models/           # Entidades do domínio
 │   └── Program.cs
-├── frontend/                # React + TS (em breve)
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # Interface do usuário
+│   │   ├── hooks/        # Lógica de estado e chamadas de API
+│   │   └── api/          # Cliente HTTP para o backend
 └── README.md
 ```
 
-## Regras de negócio
+## Regras de negócio implementadas
 
-- Uma pessoa tem: `Id` (gerado automaticamente), `Name`, `Age`.
-- Uma transação tem: `Id` (gerado automaticamente), `Description`, `Amount`, `Type` (`Expense`/`Income`), `PersonId`.
-- Deletar uma pessoa apaga em cascata todas as suas transações.
-- Pessoas menores de 18 anos só podem cadastrar transações do tipo `Expense` — `Income` é bloqueado.
-- Uma transação precisa referenciar uma pessoa existente.
-
-## Plus implementados
-
-Além do escopo mínimo do desafio:
-
-- **Swagger/OpenAPI** — documentação interativa da API em `/swagger`.
-- **Tratamento de erro global** — exceções de domínio (ex: pessoa não encontrada, violação de regra de negócio) são traduzidas em respostas JSON de erro consistentes, em vez de vazar stack trace cru.
-- **Paginação** — a listagem de transações suporta `page`/`pageSize`, além de filtros opcionais por pessoa e por tipo.
+- Uma pessoa possui: `Id`, `Name` e `Age`.
+- Uma transação possui: `Id`, `Description`, `Amount`, `Type` (`Expense` / `Income`) e `PersonId`.
+- A transação precisa apontar para uma pessoa existente.
+- Pessoas menores de 18 anos só podem cadastrar despesas.
+- Deletar uma pessoa remove automaticamente todas as suas transações.
+- O total geral é calculado com base nas transações registradas.
 
 ## Como rodar
 
 ### Pré-requisitos
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Node.js](https://nodejs.org/) (pro frontend, quando estiver disponível)
+- .NET 10 SDK
+- Node.js
 
-### Rodando o backend
+### Backend
 
 ```bash
 cd backend
-
-# restaura os pacotes NuGet
 dotnet restore
-
-# instala a ferramenta de linha de comando do EF Core (uma vez só, globalmente)
-dotnet tool install --global dotnet-ef
-
-# cria o banco e aplica as migrations
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-# sobe a API
 dotnet run
 ```
 
-A API sobe em `https://localhost:5001` (confere a porta exata no output do terminal). A documentação interativa fica em `https://localhost:5001/swagger`.
+A API fica disponível em `http://localhost:5087` por padrão, e a documentação Swagger em `http://localhost:5087/swagger`.
 
-O arquivo do banco SQLite é criado automaticamente na pasta `backend/` e persiste entre execuções.
-
-### Rodando o frontend
+### Frontend
 
 ```bash
 cd frontend
@@ -106,39 +104,33 @@ npm install
 npm run dev
 ```
 
-## Endpoints da API
+O frontend é servido em `http://localhost:5173`.
+
+## Endpoints principais
 
 ### Pessoas
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `POST` | `/api/people` | Cadastra uma nova pessoa |
+| `POST` | `/api/people` | Cria uma pessoa |
 | `GET` | `/api/people` | Lista todas as pessoas |
-| `DELETE` | `/api/people/{id}` | Remove uma pessoa (em cascata, remove suas transações) |
-| `GET` | `/api/people/totals` | Receitas, despesas e saldo por pessoa, além dos totais gerais |
+| `DELETE` | `/api/people/{id}` | Remove uma pessoa e suas transações |
+| `GET` | `/api/people/totals` | Retorna totais por pessoa e geral |
 
 ### Transações
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `POST` | `/api/transactions` | Cadastra uma nova transação |
-| `GET` | `/api/transactions?page=1&pageSize=10&personId=&type=` | Listagem paginada, com filtros opcionais |
+| `POST` | `/api/transactions` | Cria uma transação |
+| `GET` | `/api/transactions?page=1&pageSize=10&personId=&type=` | Lista transações com paginação e filtros opcionais |
 
-## Status
+## Destaques da entrega
 
-- [x] Models `Person`, `Transaction` e `TransactionType`
-- [ ] `AppDbContext` + migration inicial
-- [ ] CRUD de pessoas (criar, listar, deletar)
-- [ ] Transações (criar, listar com paginação)
-- [ ] Endpoint de totais
-- [ ] Middleware de tratamento de erro global
-- [ ] Configuração do Swagger
-- [ ] Frontend
+- O projeto atende ao desafio técnico de forma completa.
+- A lógica de negócio está centralizada em services, deixando o código mais limpo e fácil de manter.
+- A experiência do usuário foi tratada com cuidado no frontend, não apenas com a funcionalidade básica, mas com uma interface mais agradável e organizada.
+- O projeto está preparado para ser apresentado como uma solução completa, com foco em qualidade, legibilidade e boas práticas.
 
-## Fluxo de Git
+## Comentários e documentação no código
 
-O projeto usa um modelo de branches simplificado:
-
-- `main` — sempre estável
-- `develop` — branch de integração
-- `feature/*` — uma branch por funcionalidade, mergeada na `develop`
+A lógica mais importante foi documentada diretamente nos pontos-chave do backend para facilitar a leitura e compreensão da solução durante a avaliação.
