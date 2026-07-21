@@ -1,8 +1,8 @@
 # Home Expense Tracker
 
-Aplicação desenvolvida para um desafio técnico, com o objetivo de controlar gastos residenciais de forma simples, organizada e visualmente clara.
+Aplicação cujo objetivo é controlar gastos residenciais de forma simples, organizada e visualmente clara.
 
-A solução foi construída com backend em .NET e frontend em React + TypeScript, com persistência local em SQLite, atendendo aos requisitos do desafio e ainda entregando uma experiência mais completa para o usuário.
+A solução foi construída com backend em .NET e frontend em React + TypeScript, com persistência local em SQLite, entregando uma experiência mais completa para o usuário.
 
 ## O que foi implementado
 
@@ -126,7 +126,6 @@ O frontend é servido em `http://localhost:5173`.
 
 ## Destaques da entrega
 
-- O projeto atende ao desafio técnico de forma completa.
 - A lógica de negócio está centralizada em services, deixando o código mais limpo e fácil de manter.
 - A experiência do usuário foi tratada com cuidado no frontend, não apenas com a funcionalidade básica, mas com uma interface mais agradável e organizada.
 - O projeto está preparado para ser apresentado como uma solução completa, com foco em qualidade, legibilidade e boas práticas.
