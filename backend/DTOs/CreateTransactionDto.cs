@@ -10,7 +10,7 @@ public class CreateTransactionDto
     [MaxLength(200)]
     public string Description { get; set; } = string.Empty;
 
-    [Range(0.01, double.MaxValue)]
+    [Range(0.01, 1_000_000)]
     public decimal Amount { get; set; }
 
     [Required]
