@@ -54,7 +54,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+    dbContext.Database.Migrate();
+}
 
 // Global error handling: translates domain exceptions into consistent JSON responses,
 // instead of leaking raw stack traces (HTTP 500) to the client.
